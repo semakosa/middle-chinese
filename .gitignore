@@ -3,3 +3,4 @@ scripts/node_modules/
 output/
 work/
 .DS_Store
+webapp/public/*.csv

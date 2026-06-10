@@ -1,0 +1,59 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generate CSV datasets
+        run: bash scripts/deploy.sh
+
+      - name: Assemble Pages artifact
+        run: |
+          set -euo pipefail
+          site_dir="${RUNNER_TEMP}/site"
+          rm -rf "${site_dir}"
+          mkdir -p "${site_dir}"
+          rsync -a --delete webapp/ "${site_dir}/"
+          mkdir -p "${site_dir}/public"
+          while IFS= read -r -d '' csv_path; do
+            cp "${csv_path}" "${site_dir}/public/$(basename "${csv_path}")"
+          done < <(find "${GITHUB_WORKSPACE}" -maxdepth 2 -type f -name '*.csv' ! -path "${GITHUB_WORKSPACE}/webapp/public/*" -print0)
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ runner.temp }}/site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

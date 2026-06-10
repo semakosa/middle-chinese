@@ -64,7 +64,7 @@ Please open an issue if you notice erroneous or unexpected data.
 
 ### Regenerating the datasets
 
-The generated CSV files can be refreshed by running [`scripts/deploy.sh`](./scripts/deploy.sh). This updates the root dataset, the experimental dataset under [`testing/`](./testing), and the copies served by the web app under [`webapp/public/`](./webapp/public).
+The generated CSV files can be refreshed by running [`scripts/deploy.sh`](./scripts/deploy.sh). This updates the root dataset and the experimental dataset under [`testing/`](./testing).
 
 ## Attribution
 
