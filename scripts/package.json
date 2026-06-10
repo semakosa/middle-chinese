@@ -1,0 +1,15 @@
+{
+  "name": "middle-chinese-scripts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "export:csv": "node export-character-readings.mjs ../character-readings.csv",
+    "export:csv:with-lmc": "node export-character-readings.mjs ../testing/character-readings-with-lmc.csv with-lmc",
+    "deploy": "./deploy.sh",
+    "cleanup": "./cleanup.sh"
+  },
+  "dependencies": {
+    "tshet-uinh": "^0.15.4",
+    "tshet-uinh-deriver-tools": "^0.2.0"
+  }
+}

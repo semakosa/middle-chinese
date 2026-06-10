@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="title">Middle Chinese lookup tool (pharyngealization theory)</title>
+  <meta
+    name="description"
+    content="Lookup tool for Middle Chinese character readings." />
+  <style>
+    :root {
+      /* Base Theme Variables */
+      --bg: #fafafa;
+      --bg-panel: #ffffff;
+      --border: #ddd;
+      --text: #333;
+      --text-muted: #666;
+      --accent: #0366d6;
+      --accent-hover: #005cc5;
+      
+      /* Typography */
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      --font-song: "Songti SC", "SimSun", "PMingLiU", "MingLiU", "STSong", serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0d1117;
+        --bg-panel: #161b22;
+        --border: #30363d;
+        --text: #c9d1d9;
+        --text-muted: #8b949e;
+        --accent: #58a6ff;
+        --accent-hover: #79c0ff;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    /* --- Clean, Light Sticky Header --- */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background-color: rgba(255, 255, 255, 0.95);
+      color: #1f2937;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      header {
+        background-color: rgba(22, 27, 34, 0.95);
+        color: var(--text);
+      }
+    }
+
+    .header-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 0 20px;
+    }
+
+    /* --- Buttons & Controls --- */
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    button, .file-upload-label, .product-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: var(--bg-panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-decoration: none;
+      font-family: var(--font-sans);
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+
+    button:hover, .file-upload-label:hover, .product-link:hover {
+      border-color: var(--text-muted);
+      background-color: #f7f7f7;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      button:hover, .file-upload-label:hover, .product-link:hover {
+        background-color: #1f2733;
+      }
+    }
+
+    input[type="file"] { display: none; }
+
+    /* --- Panels --- */
+    .panel {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .meta {
+      color: var(--text-muted);
+      font-size: 0.96rem;
+    }
+
+    .callout {
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      background: rgba(127, 127, 127, 0.04);
+      margin: 12px 0;
+    }
+
+    .product-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .link-list {
+      margin: 0;
+      padding-left: 1.25rem;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      background-color: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      resize: vertical;
+      box-sizing: border-box;
+      margin-top: 15px;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      font-family: var(--font-mono);
+      cursor: pointer;
+    }
+
+    select {
+      background-color: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+
+    /* --- Compact Output Blocks & Hue Styling --- */
+    #output { margin-top: 20px; }
+    
+    .char-block {
+      margin-bottom: 2px;
+    }
+    
+    .char-title {
+      font-family: var(--font-song);
+      font-size: 2.2rem;
+      font-weight: normal; /* Elegant, non-bold Serif */
+      color: #000000; /* Absolute pitch black */
+      margin-right: 12px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      /* Keep target characters black even in dark mode for user specification */
+      .char-title { color: #000000; background: #fff; padding: 2px 6px; border-radius: 4px; }
+    }
+
+    .reading-row {
+      display: inline-flex;
+      gap: 12px;
+      background: transparent; /* Completely transparent background */
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin: 4px 4px 0 0;
+      border: 1px solid var(--border);
+      font-size: 0.85rem;
+      vertical-align: middle;
+    }
+
+    .reading-col { 
+      display: flex; 
+      flex-direction: column; 
+      background: transparent;
+    }
+
+    .reading-header {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: hsl(var(--hue), 50%, 70%); /* Clean matching hue identifier */
+    }
+
+    .reading-val {
+      font-size: 0.85rem;
+      color: hsl(var(--hue), 70%, 20%); /* Dark, partially desaturated version of chosen hue */
+      font-family: var(--font-mono);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .reading-val { color: hsl(var(--hue), 40%, 75%); } /* Adjusted for dark mode legibility */
+    }
+
+    .status {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    svg.icon {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <h1 data-i18n="title">Middle Chinese lookup tool</h1>
+      <div class="controls">
+        <label class="file-upload-label">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          <span data-i18n="load_csv">Load Local CSV</span>
+          <input type="file" id="csv-input" accept=".csv">
+        </label>
+        <button id="lang-toggle">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          <span>En / 中文</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="panel">
+      <div class="status" id="status">
+        <span data-i18n="status_loading">Attempting to load the selected public CSV...</span>
+      </div>
+      <div class="controls" style="margin-bottom: 10px;">
+        <label for="csv-select" data-i18n="csv_choice_label">CSV source</label>
+        <select id="csv-select"></select>
+      </div>
+
+      <div id="column-selectors" class="checkbox-group"></div>
+
+      <textarea id="text-input" data-i18n-placeholder="placeholder_text" placeholder="Enter Chinese characters here..."></textarea>
+    </div>
+
+    <div id="output" class="panel"></div>
+
+    <div class="panel">
+      <h2 data-i18n="about_title">About</h2>
+      <p>
+        This page contains a lightweight lookup tool for Early Middle Chinese
+        (<em>Qièyùn</em> system) character pronunciations. The <code>emc</code>
+        reflects the reconstruction of Early Middle Chinese sketched in Appendix B of
+        Wang and Gong (to appear); an introduction to the particular variant provided
+        here will be added soon.
+      </p>
+      <p>
+        The main CSV and this web app are supplementary materials to
+        <em>Reconstructing pharyngealized vowels for Qieyun Division II in Middle
+          Chinese</em> by Tianheng Wang and Xun Gong (to appear in
+        <em>Diachronica</em>).
+        <a href="https://doi.org/10.1075/dia.25018.wan" target="_blank" rel="noopener">https://doi.org/10.1075/dia.25018.wan</a>
+      </p>
+      <p>
+        Source files, generated CSVs, attribution for the underlying rhyme-book data
+        and computational tools, and further notes are available in the repository:
+        <a href="https://github.com/semakosa/middle-chinese" target="_blank" rel="noopener">https://github.com/semakosa/middle-chinese</a>.
+      </p>
+      <p>
+        For a more powerful character lookup interface, including other
+        <code>unt</code>-type transcription systems, see the
+        <a href="https://nk2028.shn.hk/tshet-uinh-autoderiver/?lang=en&amp;schema=unt" target="_blank" rel="noopener">Tshet-uinh Autoderiver</a>.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const CSV_SOURCES = [
+      {
+        id: "readings",
+        url: "./public/character-readings.csv",
+        label: { en: "Main character-readings.csv", zh: "主數據庫 character-readings.csv" },
+      },
+      {
+        id: "with-lmc",
+        url: "./public/character-readings-with-lmc.csv",
+        label: { en: "Testing: with LMC stages", zh: "測試：含中古晚期階段" },
+      },
+    ];
+
+    // Range of 10 distinct architectural hues mapped to columns
+    const HUES = [210, 30, 145, 280, 15, 195, 330, 85, 245, 355];
+
+    const DEFAULT_CSV_SOURCE_ID = "readings";
+    let currentLang = 'en';
+    const dict = {
+      en: {
+        title: "Middle Chinese lookup tool",
+        load_csv: "Load Local CSV",
+        csv_choice_label: "CSV source",
+        about_title: "About",
+        status_loading: "Attempting to load the selected public CSV...",
+        status_ready: "Database ready. (Loaded {0} characters)",
+        status_error: "Could not fetch default CSV. Please use 'Load Local CSV'.",
+        status_local_file: "This browser blocks automatic loading from ./public/ when the page is opened as a local file. Use 'Load Local CSV' or run a local web server.",
+        placeholder_text: "Enter Chinese characters here (e.g., 郭沫若沒出息)..."
+      },
+      zh: {
+        title: "中古漢語查詢工具",
+        load_csv: "加載本地 CSV",
+        csv_choice_label: "CSV 來源",
+        about_title: "關於",
+        status_loading: "正在嘗試加載所選的 public CSV...",
+        status_ready: "數據庫已就緒。(已加載 {0} 個漢字)",
+        status_error: "無法獲取預設 CSV，請點擊「加載本地 CSV」。",
+        status_local_file: "以本地檔案方式開啟此頁時，瀏覽器會阻止從 ./public/ 自動載入。請點擊「加載本地 CSV」，或改用本地 web server。",
+        placeholder_text: "請輸入漢字 (例如: 郭沫若沒出息)..."
+      }
+    };
+
+    const elements = {
+      langToggle: document.getElementById('lang-toggle'),
+      csvSelect: document.getElementById('csv-select'),
+      csvInput: document.getElementById('csv-input'),
+      textInput: document.getElementById('text-input'),
+      output: document.getElementById('output'),
+      status: document.getElementById('status'),
+      columnSelectors: document.getElementById('column-selectors')
+    };
+
+    let csvHeaders = [];
+    let csvData = new Map();
+    let selectedColumns = new Set();
+    let statusKey = 'status_loading';
+    let selectedCsvSourceId = DEFAULT_CSV_SOURCE_ID;
+
+    elements.langToggle.addEventListener('click', () => {
+      currentLang = currentLang === 'en' ? 'zh' : 'en';
+      updateUI();
+    });
+
+    function updateUI() {
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = dict[currentLang][key];
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        el.placeholder = dict[currentLang][key];
+      });
+      buildCsvSelector();
+      if (csvData.size > 0) {
+        elements.status.textContent = dict[currentLang].status_ready.replace('{0}', csvData.size);
+      } else {
+        elements.status.textContent = dict[currentLang][statusKey];
+      }
+    }
+
+    function buildCsvSelector() {
+      elements.csvSelect.innerHTML = '';
+      CSV_SOURCES.forEach(source => {
+        const option = document.createElement('option');
+        option.value = source.id;
+        option.textContent = source.label[currentLang];
+        option.selected = source.id === selectedCsvSourceId;
+        elements.csvSelect.appendChild(option);
+      });
+    }
+
+    function getSelectedCsvSource() {
+      return CSV_SOURCES.find(source => source.id === selectedCsvSourceId) ?? CSV_SOURCES[0];
+    }
+
+    function parseCSVLine(line) {
+      const values = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (ch === ',' && !inQuotes) {
+          values.push(current);
+          current = '';
+        } else {
+          current += ch;
+        }
+      }
+      values.push(current);
+      return values;
+    }
+
+    function parseCSV(text) {
+      const lines = text.split('\n').map(l => l.replace(/\r$/, '')).filter(l => l.trim());
+      if (lines.length < 1) return;
+
+      csvHeaders = parseCSVLine(lines[0]);
+      csvData.clear();
+
+      selectedColumns.clear();
+      for (let i = 1; i < csvHeaders.length; i++) {
+        selectedColumns.add(i);
+      }
+
+      for (let i = 1; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        const char = cols[0];
+        if (!csvData.has(char)) {
+          csvData.set(char, []);
+        }
+        csvData.get(char).push(cols);
+      }
+
+      buildCheckboxes();
+      statusKey = 'status_ready';
+      elements.status.textContent = dict[currentLang].status_ready.replace('{0}', csvData.size);
+      annotateText();
+    }
+
+    function buildCheckboxes() {
+      elements.columnSelectors.innerHTML = '';
+      for (let i = 1; i < csvHeaders.length; i++) {
+        const label = document.createElement('label');
+        label.className = 'checkbox-label';
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = selectedColumns.has(i);
+        cb.addEventListener('change', event => {
+          if (event.target.checked) selectedColumns.add(i);
+          else selectedColumns.delete(i);
+          annotateText();
+        });
+
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(csvHeaders[i]));
+        elements.columnSelectors.appendChild(label);
+      }
+    }
+
+    function annotateText() {
+      const text = elements.textInput.value;
+      elements.output.innerHTML = '';
+      if (!text || csvData.size === 0) return;
+
+      const seen = new Set();
+      for (const char of text) {
+        if (seen.has(char)) continue;
+        seen.add(char);
+
+        const readings = csvData.get(char);
+        if (!readings) continue;
+
+        const block = document.createElement('div');
+        block.className = 'char-block';
+
+        const title = document.createElement('span');
+        title.className = 'char-title';
+        title.textContent = char;
+        block.appendChild(title);
+
+        readings.forEach(row => {
+          const rowEl = document.createElement('div');
+          rowEl.className = 'reading-row';
+
+          for (let i = 1; i < csvHeaders.length; i++) {
+            if (!selectedColumns.has(i)) continue;
+
+            const colEl = document.createElement('div');
+            colEl.className = 'reading-col';
+            
+            // Map column selection to hue ranges safely
+            const hue = HUES[i % HUES.length];
+            colEl.style.setProperty('--hue', hue);
+
+            const headerEl = document.createElement('span');
+            headerEl.className = 'reading-header';
+            headerEl.textContent = csvHeaders[i];
+
+            const valEl = document.createElement('span');
+            valEl.className = 'reading-val';
+            valEl.textContent = row[i] || '-';
+
+            colEl.appendChild(headerEl);
+            colEl.appendChild(valEl);
+            rowEl.appendChild(colEl);
+          }
+          block.appendChild(rowEl);
+        });
+
+        elements.output.appendChild(block);
+      }
+    }
+
+    elements.textInput.addEventListener('input', annotateText);
+
+    function loadSelectedCSV() {
+      if (window.location.protocol === 'file:') {
+        statusKey = 'status_local_file';
+        elements.status.textContent = dict[currentLang][statusKey];
+        return;
+      }
+
+      fetch(getSelectedCsvSource().url)
+        .then(res => {
+          if (!res.ok) throw new Error('Network response was not ok');
+          return res.text();
+        })
+        .then(text => parseCSV(text))
+        .catch(() => {
+          statusKey = 'status_error';
+          elements.status.textContent = dict[currentLang][statusKey];
+        });
+    }
+
+    elements.csvSelect.addEventListener('change', event => {
+      selectedCsvSourceId = event.target.value;
+      statusKey = 'status_loading';
+      elements.status.textContent = dict[currentLang][statusKey];
+      loadSelectedCSV();
+    });
+
+    elements.csvInput.addEventListener('change', event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = loadEvent => parseCSV(loadEvent.target.result);
+      reader.readAsText(file);
+    });
+
+    updateUI();
+    loadSelectedCSV();
+  </script>
+</body>
+</html>
