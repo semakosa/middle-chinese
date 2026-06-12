@@ -524,11 +524,7 @@
       elements.output.innerHTML = '';
       if (!text || csvData.size === 0) return;
 
-      const seen = new Set();
       for (const char of text) {
-        if (seen.has(char)) continue;
-        seen.add(char);
-
         const readings = csvData.get(char);
         if (!readings) continue;
 
