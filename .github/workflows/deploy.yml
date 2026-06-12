@@ -27,7 +27,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: Generate CSV datasets
+      - name: Generate and stage CSV datasets
         run: bash scripts/deploy.sh
 
       - name: Assemble Pages artifact
@@ -37,10 +37,6 @@ jobs:
           rm -rf "${site_dir}"
           mkdir -p "${site_dir}"
           rsync -a --delete webapp/ "${site_dir}/"
-          mkdir -p "${site_dir}/public"
-          while IFS= read -r -d '' csv_path; do
-            cp "${csv_path}" "${site_dir}/public/$(basename "${csv_path}")"
-          done < <(find "${GITHUB_WORKSPACE}" -maxdepth 2 -type f -name '*.csv' ! -path "${GITHUB_WORKSPACE}/webapp/public/*" -print0)
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
