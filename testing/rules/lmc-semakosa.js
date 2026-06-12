@@ -489,17 +489,6 @@ function 底層to表層(音節) {
     音節.等介音 = '';
   }
 
-  // Most remaining ɰ is printed ɨ before overt vowels.
-  if (/^[aɑɛoɔʉui]/.test(音節.韻基)) {
-    音節.等介音 = 音節.等介音.replace('ɰ', 'ɨ');
-  }
-
-  // This is a cheat: labiodentalized -am, etc. show both rank-I and rank-II
-  // behaviour in the same materials, so we remove the ʕayn here.
-  if (/[fvɱʋ]/.test(音節.聲母) && is`咸山攝`) {
-    音節.等介音 = 音節.等介音.replace('ʕ', '');
-  }
-
   // Orthographic conventions imported from the repo's EMC scheme: neutralize
   // acute + j before i only, but neutralize all III/IV markers after palatals.
   if (is`銳音 開口` && 音節.韻基[0] === 'i') {
@@ -510,6 +499,17 @@ function 底層to表層(音節) {
     音節.等介音 = 音節.等介音
       .replace('j', '')
       .replace('ɰ', '');
+  }
+
+  // Most remaining ɰ is printed ɨ before overt vowels.
+  if (/^[aɑɛoɔʉui]/.test(音節.韻基)) {
+    音節.等介音 = 音節.等介音.replace('ɰ', 'ɨ');
+  }
+
+  // This is a cheat: labiodentalized -am, etc. show both rank-I and rank-II
+  // behaviour in the same materials, so we remove the ʕayn here.
+  if (/[fvɱʋ]/.test(音節.聲母) && is`咸山攝`) {
+    音節.等介音 = 音節.等介音.replace('ʕ', '');
   }
 
   if (音節.聲母 === 'ʔ' && 音節.等介音 === 'ʕ') {
